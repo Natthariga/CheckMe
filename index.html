@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CheckMe</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Roboto:100,300,400,500,700|Philosopher:400,400i,700,700i"
+    rel="stylesheet">
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.theme.default.min.css" rel="stylesheet">
+  <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/modal-video/css/modal-video.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+
+  <!-- firebase -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.10/dist/vuetify.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.10/dist/vuetify.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+  <header id="header" class="header header-hide">
+    <div class="container">
+      <div id="logo" class="pull-left">
+        <h1><a href="#" class="scrollto"><span>C</span>heckMe</a></h1>
+      </div>
+      <nav id="nav-menu-container">
+        <ul class="nav-menu" id="login">
+          <li class="menu-active"><a href="#hero">Home</a></li>
+          <li><a href="#"  @click="google_login()">Login</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <section id="hero" class="wow fadeIn">
+    <div class="hero-container">
+      <h1>Welcome to CheckMe</h1>
+      <h2>CheckMe Classroom : CheckIn Online</h2>
+      <img src="img/hero-img.png" alt="Hero Imgs">
+      <a href="" class="btn-get-started scrollto" @click="google_login()">Login</a>
+    </div>
+  </section>
+
+  <script>
+    // const firebaseConfig = {
+    //   apiKey: "AIzaSyBS6YwK9J36HbCRapoZp9_yKxhiammk13c",
+    //   authDomain: "checkname-1fdfe.firebaseapp.com",
+    //   projectId: "checkname-1fdfe",
+    //   storageBucket: "checkname-1fdfe.appspot.com",
+    //   messagingSenderId: "533214256152",
+    //   appId: "1:533214256152:web:6bcaf44596469fce17376d",
+    //   measurementId: "G-ZZXF64KNME"
+    // }
+    const firebaseConfig = {
+    apiKey: "AIzaSyD1b57Gu7RmvDnFos1jfqttcjodDAuL-RQ",
+    authDomain: "test-8ea4c.firebaseapp.com",
+    projectId: "test-8ea4c",
+    storageBucket: "test-8ea4c.appspot.com",
+    messagingSenderId: "545188803656",
+    appId: "1:545188803656:web:afdf45fb7f846bc290147d",
+    measurementId: "G-92S9RP518C"
+  };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const vuetify = Vuetify.createVuetify();
+    const app = Vue.createApp({
+      data() {
+        return {
+          user: null,
+          userRole: '',
+        };
+      },
+
+      mounted() {
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            this.user = {
+              email: user.email,
+              uid: user.uid,
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+            };
+            this.checkUserRole(user.email);
+          } else {
+            this.user = null;
+          }
+        });
+      },
+
+      methods: {
+        google_login() {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          provider.addScope("profile");
+          provider.addScope("email");
+
+
+          firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+              var user = result.user;
+              var email = user.email;
+
+              this.checkUserRole(email);
+
+              window.location.href = 'logintest.html';
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        },
+        checkUserRole(email) {
+          db.collection("Teachers").where("email", "==", email).get()
+            .then((querySnapshot) => {
+              if (!querySnapshot.empty) {
+                this.userRole = 'Teacher';
+              } else {
+                this.userRole = 'Student';
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking user role:", error);
+            });
+        },
+      }
+    });
+    app.use(vuetify).mount("#login");
+  </script>
+
+  <script src="lib/jquery/jquery.min.js"></script>
+  <script src="lib/jquery/jquery-migrate.min.js"></script>
+  <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="lib/superfish/hoverIntent.js"></script>
+  <script src="lib/superfish/superfish.min.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+  <script src="lib/modal-video/js/modal-video.js"></script>
+  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+  <script src="lib/wow/wow.min.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>
