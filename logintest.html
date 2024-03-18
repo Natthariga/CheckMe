@@ -38,9 +38,9 @@
                             </div>
                             <div id="nav-menu-container">
                                 <ul class="nav-menu" id="login" v-if="user">
-                                    <li>{{ user.displayName }}</li>
                                     <li>
-                                        <img :src="user.photoURL" style="width: 30px; height: 30px; border-radius: 50%;"
+                                        {{ user.displayName }}
+                                        <img :src="user.photoURL" style="width: 30px; height: 30px; margin-left: 5px; border-radius: 50%;"
                                             icon="mdi-menu-down" />
                                         <v-menu activator="parent" location="bottom end" transition="fade-transition">
                                             <v-list density="compact" min-width="250" rounded="lg" slim>
