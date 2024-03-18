@@ -36,7 +36,7 @@
       <nav id="nav-menu-container">
         <ul class="nav-menu" id="login">
           <li class="menu-active"><a href="#hero">Home</a></li>
-          <li><a  @click="google_login()">Login</a></li>
+          <li><a href="#" @click="google_login()">Login</a></li>
         </ul>
       </nav>
     </div>
@@ -111,7 +111,8 @@
 
               this.checkUserRole(email);
 
-              window.location.href = '/logintest.html';
+              document.location.href='app://index.html'
+              // window.location.href = '/logintest.html';
             })
             .catch((error) => {
               console.error(error);
