@@ -97,7 +97,7 @@
 
                     <div v-if="user" class="pl-8 pr-8">
                         <div v-if="userRole === 'Student'">
-                            <h3 class="my-5">Join Class</h3>
+                            <p class="my-5 h4">Join Class</p>
                             <v-dialog v-model="showDialog" max-width="500">
                                 <v-card>
                                     <v-card-title>
@@ -119,7 +119,7 @@
                                         variant="outlined"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="2">
-                                    <v-btn block variant="tonal" color='black' size="x-large" @click="checkStudent">
+                                    <v-btn block variant="outlined" size="x-large" @click="checkStudent">
                                         JOIN
                                     </v-btn>
                                 </v-col>
@@ -129,7 +129,7 @@
                                 <!-- <div> -->
                                 <v-row justify="center" align-items="center" class="my-3">
                                     <v-col cols="12" sm="12">
-                                        <h3>Student Information</h3>
+                                        <p class="h4">Student Information</p>
                                     </v-col>
                                     <!-- <v-col cols="12" sm="2">
                                         <v-btn block variant="outlined" color='info' size="large"
@@ -138,37 +138,49 @@
                                         </v-btn>
                                     </v-col> -->
                                 </v-row>
-                                <v-col v-if="!showQuizBox" justify="center" align-items="center">
-                                    <v-row cols="12" sm="12">
-                                        <v-text-field v-model="studentInfo.sid" label="Student ID"
-                                            variant="outlined"></v-text-field>
+                                <div v-if="!showQuizBox" justify="center" align-items="center">
+                                    <v-row>
+                                        <v-col cols="12" sm="6">
+                                            <v-text-field v-model="studentInfo.sid" label="Student ID"
+                                                variant="outlined"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6">
+                                            <v-text-field v-model="studentInfo.email" label="Email"
+                                                variant="outlined"></v-text-field>
+                                        </v-col>
                                     </v-row>
+
                                     <v-row cols="12" sm="12">
-                                        <v-text-field v-model="studentInfo.email" label="Email"
-                                            variant="outlined"></v-text-field>
-                                    </v-row>
-                                    <v-row cols="12" sm="12">
-                                        <v-text-field v-model="studentInfo.name" label="Name"
-                                            variant="outlined"></v-text-field>
-                                    </v-row>
-                                    <v-row cols="12" sm="12">
-                                        <v-text-field v-model="studentInfo.section" label="Section"
-                                            variant="outlined"></v-text-field>
+                                        <v-col cols="12" sm="6">
+                                            <v-text-field v-model="studentInfo.name" label="Name"
+                                                variant="outlined"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6">
+                                            <v-text-field v-model="studentInfo.section" label="Section"
+                                                variant="outlined"></v-text-field>
+                                        </v-col>
                                     </v-row>
                                     <v-row cols="12" sm="12" class="mb-4">
-                                        <h class="h4">{{ question }} ?</h>
+                                        <v-col cols="12" sm="12">
+                                            <h class="h4">{{ question }} ?</h>
+                                        </v-col>
                                     </v-row>
                                     <v-row cols="12" sm="12">
-                                        <v-text-field v-model="studentInfo.answer" label="Answer" 
-                                        variant="outlined"></v-text-field>
+                                        <v-col cols="12" sm="12">
+                                            <v-text-field v-model="studentInfo.answer" label="Answer"
+                                                variant="outlined"></v-text-field>
+                                        </v-col>
                                     </v-row>
                                     <v-row cols="12" sm="12">
-                                        <v-btn block variant="tonal" color='success' size="x-large"
-                                            @click="submitAdditionalData">
-                                            Submit
-                                        </v-btn>
+                                        <v-col cols="12" sm="12">
+                                            <v-btn block variant="tonal" color='success' size="x-large"
+                                                @click="submitAdditionalData">
+                                                Submit
+                                            </v-btn>
+                                        </v-col>
+
                                     </v-row>
-                                </v-col>
+                                </div>
                                 <!-- <v-col v-if="showQuizBox" justify="center" align-items="center">
                                     <v-row cols="12" sm="12" class="mb-4">
                                         <h class="h4">{{ question }} ?</h>
@@ -187,35 +199,84 @@
                         </div>
 
                         <div v-if="userRole === 'Teacher'">
-                            <h2 class="my-5">Teacher</h2>
-
+                            <p class="my-5 h4">Join Class</p>
+                            <v-dialog v-model="showDialog" max-width="500">
+                                <v-card>
+                                    <v-card-title>
+                                        <span class="headline">Alert</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <p v-if="alertType === 'notFound'">Class ID not found.</p>
+                                        <p v-if="alertType === 'empty'">Please enter Class ID.</p>
+                                    </v-card-text>
+                                    <v-card-actions class="justify-end">
+                                        <v-btn color="black" @click="showDialog = false">Close</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
                             <v-row justify="center" align-items="center">
-                                <v-col cols="12" sm="3">
-                                    <v-text-field v-model="generateRandomID()" :label="initialID" disabled
-                                        variant="outlined">
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="3">
-                                    <v-text-field v-model="newcheckin.room" label="Room"
+                                <v-col cols="12" sm="10">
+                                    <v-text-field v-model="classID" label="Class ID"
                                         variant="outlined"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="2">
-                                    <v-select label="Select Subject" :items="['Math', 'Science', 'English']"
-                                        variant="outlined" v-model="newcheckin.subject">
-                                    </v-select>
+                                    <v-btn block variant="outlined" size="x-large" @click="checkTeacher">
+                                        JOIN
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+
+                            <v-row justify="center" align-items="center" class="my-3">
+                                <v-col cols="12" sm="10">
+                                    <p class="h4">Add Class</p>
                                 </v-col>
                                 <v-col cols="12" sm="2">
-                                    <input type="date" v-model="newcheckin.class_date" placeholder="Class Date"
-                                        id="date">
-                                </v-col>
-                                <v-col cols="12" sm="2">
-                                    <v-btn block variant="tonal" color='black' size="x-large" @click="addTeacher">
+                                    <v-btn block variant="outlined" color='info' size="large" @click="toggleAddBox">
                                         Add
                                     </v-btn>
                                 </v-col>
                             </v-row>
 
-                            <h3 class="my-5">Question Quiz</h3>
+                            <div v-if="showAddBox">
+                                <v-row>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field v-model="generateRandomID()" :label="generateRandomID()" disabled
+                                            variant="outlined">
+                                        </v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field v-model="newcheckin.room" label="Room"
+                                            variant="outlined"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" sm="6">
+                                        <v-select label="Select Subject" :items="['Math', 'Science', 'English']"
+                                            variant="outlined" v-model="newcheckin.subject">
+                                        </v-select>
+                                    </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <input type="date" v-model="newcheckin.class_date" placeholder="Class Date"
+                                            id="date">
+                                        </v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" sm="12">
+                                        <v-text-field v-model="newcheckin.question" label="Question" variant="outlined">
+                                        </v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row class="mb-5">
+                                    <v-col cols="12" sm="12">
+                                        <v-btn block variant="tonal" color='success' size="x-large" @click="addTeacher">
+                                            Add
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+                            </div>
+
+                            <!-- <h3 class="my-5">Question Quiz</h3>
                             <v-row justify="center" align-items="center">
                                 <v-col cols="12" sm="10">
                                     <v-text-field v-model="newQuestion.id" label="Question" variant="outlined"
@@ -230,40 +291,24 @@
                                     </v-btn>
                                 </v-col>
                             </v-row>
-                            <h4 v-if="newQuestionAdded">Question = {{ newQuestion.question }}</h4>
-                            <!-- <div>
-                                <input type="hidden" v-model="newQuestion.id" :value="generateRandomID()" readonly>
-                                <input type="text" v-model="newQuestion.question" placeholder="Question">
-                                <button @click="addQuestion">Add Question</button><br><br>
-                            </div> -->
+                            <h4 v-if="newQuestionAdded">Question = {{ newQuestion.question }}</h4> -->
 
-                            <!-- <div>
-                                <div v-if="questionList.length > 0">
-                                    <h2>คำถามชั้นเรียน</h2>
-                                    <ul>
-                                        <li v-for="question in questionList" :key="question.id">
-                                            <p>{{ question.question }}</p>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div v-else>
-                                    <p>ไม่มีคำถามที่ตรงกับเงื่อนไข</p>
-                                </div>
-                            </div> -->
-                            <ul>
-                                <li v-for="teacher in checkin" :key="teacher.id">
-                                    <p>ID: {{ teacher.id }}</p>
-                                    <p>Room: {{ teacher.room }}</p>
-                                    <p>Class Date: {{ teacher.class_date }}</p>
-                                    <p>Subject: {{ teacher.subject }}</p>
-                                </li>
-                            </ul>
-                            <h3 class="mb-3">Class Information</h3>
+                            <!-- <ul>
+                            <li v-for="teacher in checkin" :key="teacher.id">
+                                <p>ID: {{ teacher.id }}</p>
+                                <p>Room: {{ teacher.room }}</p>
+                                <p>Class Date: {{ teacher.class_date }}</p>
+                                <p>Subject: {{ teacher.subject }}</p>
+                            </li>
+                        </ul> -->
+                            <div v-if="showInformation">
+                            <p class="mb-3 h4">Class Information</p>
                             <div>
-                                <p>ID: {{ latestCheckin.id }}</p>
-                                <p>Room: {{ latestCheckin.room }}</p>
-                                <p>Subject: {{ latestCheckin.subject }}</p>
-                                <p>Class Date: {{ latestCheckin.class_date }}</p>
+                                <p>ID: {{ teacherFound ? classInfo.id : latestCheckin.id }}</p>
+                                <p>Room: {{ teacherFound ? classInfo.room : latestCheckin.room }}</p>
+                                <p>Subject: {{ teacherFound ? classInfo.subject : latestCheckin.subject }}</p>
+                                <p>Class Date: {{ teacherFound ? classInfo.class_date : latestCheckin.class_date }}</p>
+                                <p>Question: {{ teacherFound ? classInfo.question : latestCheckin.question }}</p>
                             </div>
                             <table class="table">
                                 <thead>
@@ -281,12 +326,15 @@
                                         <td>{{ student.sid }}</td>
                                         <td>{{ student.email }}</td>
                                         <td>{{ student.name }}</td>
-                                        <td>{{ student.section }}</td>
-                                        <td>{{ student.answer }}</td>
-                                        <td><v-btn @click="deleteData(student)">Delete</v-btn></td>
-                                    </tr>
+                                        <td style="text-align: center;">{{ student.section }}</td>
+                                        <td style="text-align: center;">{{ student.answer }}</td>
+                                        <td style="text-align: center;">
+                                            <v-btn variant="tonal" color='danger' @click="deleteData(student)">Delete</v-btn>
+                                        </td>
+                                    </tr>             
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>
