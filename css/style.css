@@ -169,6 +169,18 @@ span {
   color: #71c55d;
 }
 
+#logos{
+  color: #505050;
+  font-family: "Philosopher", sans-serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: #555;
+}
+
+#logos span{
+  color: #71c55d;
+}
+
 #header #logo img , #headers #logo h1 img{
   padding: 0;
   margin: 0;
@@ -186,7 +198,7 @@ span {
   background: url(../img/hero-bg.png) center bottom no-repeat;
   background-size: 100%;
   position: relative;
-  margin-top: 40px;
+  /* margin-top: 40px; */
 }
 
 @media (min-width: 1025px) {
