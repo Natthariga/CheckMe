@@ -7,6 +7,8 @@
 //     appId: "1:533214256152:web:6bcaf44596469fce17376d",
 //     measurementId: "G-ZZXF64KNME"
 // }
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyD1b57Gu7RmvDnFos1jfqttcjodDAuL-RQ",
     authDomain: "test-8ea4c.firebaseapp.com",
@@ -15,7 +17,7 @@ const firebaseConfig = {
     messagingSenderId: "545188803656",
     appId: "1:545188803656:web:afdf45fb7f846bc290147d",
     measurementId: "G-92S9RP518C"
-  };
+};
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -23,26 +25,31 @@ const vuetify = Vuetify.createVuetify();
 const app = Vue.createApp({
     data() {
         return {
+            showInformation: false,
             newQuestionAdded: false,
             addTeacherWarning: false,
             addTeacherSuccess: false,
             showQuizBox: false,
+            showAddBox: false,
             showLogout: false,
             showDialog: false,
             alertType: '',
             user: null,
             userRole: '',
             checkin: [],
-            newcheckin: { id: '', room: '', class_date: '', subject: '' },
+            newcheckin: { id: '', room: '', class_date: '', subject: '', question: '' },
             initialID: '',
+            classID: '',
             students: [],
             studentFound: false,
-            studentInfo: { id: '', sid: '', email: '', name: '', section: '' , answer: '' },
+            teacherFound: false,
+            studentInfo: { id: '', sid: '', email: '', name: '', section: '', answer: '' },
+            classInfo: { id: '', room: '', class_date: '', subject: '', question: '' },
             latestCheckin: { id: '' },
-            newQuestion: {question: '', id: ''},
+            newQuestion: { question: '', id: '' },
             latestQuestion: null,
             questionList: [],
-            question: {question:''},
+            question: { question: '' },
         };
     },
 
@@ -65,26 +72,41 @@ const app = Vue.createApp({
                 this.user = null;
             }
         });
-        this.autoRead();
-        // this.readQuestion();
+        this.autoRead(this.classID);
         this.readQuestion(this.latestCheckin.id);
 
     },
 
     methods: {
         deleteData(std) {
-            if (confirm("ต้องการลบข้อมูล")) {
-                db.collection("Students").doc(std.id).delete()
-                    .then(() => {
-                        console.log("Document successfully deleted!");
-                        // ลบข้อมูลออกจาก students หลังจากลบจากฐานข้อมูล
-                        this.students = this.students.filter(student => student.id !== std.id);
-                    })
-                    .catch((error) => {
-                        console.error("Error removing document: ", error);
-                    });
+            if (confirm("Are your sure you want to delete?")) {
+                const studentID = std.id;
+                const studentSID = std.sid;
+                if (studentID && studentSID) {
+                    db.collection("Students").where("id", "==", studentID).where("sid", "==", studentSID).get()
+                        .then((querySnapshot) => {
+                            querySnapshot.forEach((doc) => {
+                                // ลบเอกสารนักเรียนที่พบ
+                                doc.ref.delete()
+                                    .then(() => {
+                                        console.log("Document successfully deleted!");
+                                        // ลบข้อมูลออกจากตารางนักเรียนหลังจากลบจากฐานข้อมูล
+                                        this.students = this.students.filter(student => student.id !== studentID);
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error removing document: ", error);
+                                    });
+                            });
+                        })
+                        .catch((error) => {
+                            console.error("Error checking student: ", error);
+                        });
+                } else {
+                    console.error("Student ID or SID is missing.");
+                }
             }
         },
+
         checkUserRole(email) {
             db.collection("Teachers").where("email", "==", email).get()
                 .then((querySnapshot) => {
@@ -99,106 +121,48 @@ const app = Vue.createApp({
                 });
         },
 
-        autoRead() {
+        autoRead(id) {
             db.collection("Students").onSnapshot((studentSnapshot) => {
                 var studentList = [];
-
-                // ดึงข้อมูลจากตาราง "Students"
                 studentSnapshot.forEach((studentDoc) => {
                     const studentData = { id: studentDoc.id, ...studentDoc.data() };
                     const studentID = studentData.id;
-
-                    db.collection("checkin").where("id", "==", studentID)
-                        .onSnapshot((checkinSnapshot) => {
-                            checkinSnapshot.docChanges().forEach((change) => {
-                                if (change.type === "added") {
-                                    const checkinData = change.doc.data();
-                                    // เช็คว่าไอดีใน checkin ตรงกับ this.latestCheckin.id หรือไม่
-                                    if (checkinData.id === this.latestCheckin.id) {
-                                        studentList.push(studentData);
-                                    }
-                                }
-                            });
-                        }, (error) => {
-                            console.error("Error checking checkin data: ", error);
-                        });
-
-
-                    // // เช็คว่ามี ID ของนักเรียนนั้นในตาราง "checkin" หรือไม่
-                    // db.collection("checkin").where("id", "==", studentID)
-                    //     .get()
-                    //     .then((checkinSnapshot) => {
-                    //         if (!checkinSnapshot.empty) {
-                    //             // หากมีให้เพิ่มข้อมูลนักเรียนนั้นใน studentList
-                    //             checkinSnapshot.forEach((checkinDoc) => {
-                    //                 const checkinData = checkinDoc.data();
-                    //                 // เช็คว่าไอดีใน checkin ตรงกับ this.latestCheckin.id หรือไม่
-                    //                 if (checkinData.id === this.latestCheckin.id) {
-                    //                     studentList.push(studentData);
-                    //                 }
-                    //             });
-                    //         }
-                    //     })
-                    //     .catch((error) => {
-                    //         console.error("Error checking checkin data: ", error);
-                    //     });
+                    if (studentID === id) {
+                        studentList.push(studentData);
+                    }
                 });
                 setTimeout(() => {
                     this.students = studentList;
-                }, 1000); // กำหนดให้รอ 1 วินาทีเพื่อให้เช็คข้อมูลจาก Firebase ได้เสร็จสมบูรณ์
+                }, 1000);
             });
-        },
-        question() {
-            db.collection("checkin").doc(this.latestCheckin.id).get()
-                .then((checkinDoc) => {
-                    if (checkinDoc.exists) {
-                        const checkinData = checkinDoc.data();
-                        const questionID = checkinData.questionID;
-
-                        db.collection("question").doc(questionID).get()
-                            .then((questionDoc) => {
-                                if (questionDoc.exists) {
-                                    const questionData = questionDoc.data();
-                                    console.log("Question Data:", questionData);
-                                } else {
-                                    console.log("No question found with ID:", questionID);
-                                }
-                            })
-                            .catch((error) => {
-                                console.error("Error getting question document:", error);
-                            });
-                    } else {
-                        console.log("No checkin found with ID:", this.latestCheckin.id);
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error getting checkin document:", error);
-                });
         },
 
         addTeacher() {
+            this.showAddBox = false;
             if (!this.newcheckin.id) {
                 this.newcheckin.id = this.generateRandomID();
             }
-            if (this.newcheckin.room && this.newcheckin.class_date && this.newcheckin.subject) {
+            if (this.newcheckin.room && this.newcheckin.class_date && this.newcheckin.subject && this.newcheckin.question) {
                 db.collection("checkin").add(this.newcheckin)
                     .then((docRef) => {
                         db.collection("checkin").doc(docRef.id).get()
                             .then((doc) => {
                                 if (doc.exists) {
+                                    this.classID = this.generateRandomID();
                                     this.latestCheckin.id = this.generateRandomID();
                                     this.latestCheckin.room = this.newcheckin.room;
                                     this.latestCheckin.subject = this.newcheckin.subject;
                                     this.latestCheckin.class_date = this.newcheckin.class_date;
-                                    this.newcheckin = { id: '', room: '', class_date: '', subject: '' };
+                                    this.latestCheckin.question = this.newcheckin.room;
+                                    this.newcheckin = { id: '', room: '', class_date: '', subject: '', question: '' };
                                     this.fetchTeachers();
-
                                     this.addTeacherSuccess = true;
-                                    // alert('บันทึกเรียบร้อย');
+                                    alert('Add class successfully!');
                                 } else {
                                     console.log("No such document!");
                                 }
                             })
+                            
                             .catch((error) => {
                                 console.log("Error getting document:", error);
                             });
@@ -215,7 +179,6 @@ const app = Vue.createApp({
 
         submitAdditionalData() {
             const { sid, email, name, section, answer } = this.studentInfo;
-
             if (sid && email && name && section && answer) {
                 const newData = {
                     sid: sid,
@@ -223,15 +186,15 @@ const app = Vue.createApp({
                     name: name,
                     section: section,
                     answer: answer,
-                    id: this.newcheckin.id // ใช้ค่ารหัสที่รับมาจาก input newcheckin.id
+                    id: this.newcheckin.id
                 };
 
                 db.collection("Students").add(newData)
                     .then(() => {
                         console.log("Student data added successfully!");
-                        this.studentInfo = { id: '', sid: '', email: '', name: '', section: '' , answer: '' };
+                        this.studentInfo = { id: '', sid: '', email: '', name: '', section: '', answer: '' };
                         this.fetchLatestStudentData();
-                        this.students.push(newData); // เพิ่มข้อมูลใหม่เข้าไปใน students
+                        this.students.push(newData);
                         alert('Student data added successfully!');
                     })
                     .catch((error) => {
@@ -241,6 +204,7 @@ const app = Vue.createApp({
                 alert('Please fill in all fields.');
             }
         },
+
         checkStudent() {
             this.readQuestion(this.newcheckin.id);
             const studentID = this.newcheckin.id;
@@ -256,6 +220,42 @@ const app = Vue.createApp({
                             this.studentFound = true;
                             querySnapshot.forEach((doc) => {
                                 this.studentInfo = doc.data();
+                            });
+                        } else {
+                            // alert('Student not found.');
+                            this.alertType = 'notFound';
+                            this.showDialog = true;
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error checking student: ", error);
+                        alert('An error occurred while checking student.');
+                    });
+            } else {
+                // alert('Please enter student ID.');
+                this.alertType = 'empty';
+                this.showDialog = true;
+            }
+        },
+
+        checkTeacher() {
+            this.autoRead(this.classID);
+            this.readQuestion(this.classInfo.id);
+            const studentID = this.classID;
+            if (studentID) {
+                this.showInformation = true;
+                db.collection("checkin").where("id", "==", studentID)
+                    .get()
+                    .then((querySnapshot) => {
+                        if (!querySnapshot.empty) {
+                            // alert('Student found.');
+                            this.alertType = 'found';
+                            // this.showDialog = true;
+
+                            this.teacherFound = true;
+                            this.classID = '';
+                            querySnapshot.forEach((doc) => {
+                                this.classInfo = doc.data();
                             });
                         } else {
                             // alert('Student not found.');
@@ -291,6 +291,10 @@ const app = Vue.createApp({
         toggleQuizBox() {
             this.showQuizBox = !this.showQuizBox;
         },
+        toggleAddBox() {
+            this.classInfo = { id: '', room: '', class_date: '', subject: '', question: '' };
+            this.showAddBox = !this.showAddBox;
+        },
         confirmGoogleLogout() {
             this.showLogout = true;
         },
@@ -298,81 +302,54 @@ const app = Vue.createApp({
             firebase.auth().signOut();
             window.location.href = 'index.html';
         },
-        // addQuestion() {
-        //     // ตรวจสอบว่า newQuestion ถูกกำหนดหรือไม่
-        //     if (!this.newQuestion) {
-        //         this.newQuestion = {};
-        //     }
-
-        //     // เชื่อมต่อกับ Firestore database
-        //     const db = firebase.firestore();
-
-        //     // เพิ่มคำถามลงในคอลเล็กชัน question
-        //     db.collection("question").add({
-        //         question: this.newQuestion.question,
-        //         id: this.generateRandomID(), 
-        //     })
-        //     .then(docRef => {
-        //         console.log("Question added with ID: ", docRef.id);
-        //         this.addTeacherSuccess = true;
-        //         // alert("Question added successfully!");
-        //     })
-        //     .catch(error => {
-        //         console.error("Error adding question: ", error);
-        //         this.addTeacherWarning = true;
-        //         // alert("Error adding question. Please try again later.");
-        //     });
-        // },
 
         addQuestion() {
             if (!this.newQuestion) {
                 this.newQuestion = {};
             }
-                db.collection("question").add({
-                    question: this.newQuestion.question,
-                    id: this.generateRandomID(), 
-                })
-                    .then((docRef) => {
-                        this.newQuestionAdded = true;
-                        db.collection("checkin").where("id", "==", newQuestion.id).get()
+            db.collection("question").add({
+                question: this.newQuestion.question,
+                id: this.generateRandomID(),
+            })
+                .then((docRef) => {
+                    this.newQuestionAdded = true;
+                    db.collection("checkin").where("id", "==", newQuestion.id).get()
                         .then((doc) => {
-                                if (doc.exists) {
-                                    this.newQuestion.question = this.newQuestion.question;
-                                    this.newQuestion = { id: '', question: '' };
-                                    // this.fetchTeachers();
+                            if (doc.exists) {
+                                this.newQuestion.question = this.newQuestion.question;
+                                this.newQuestion = { id: '', question: '' };
+                                // this.fetchTeachers();
 
-                                    this.addTeacherSuccess = true;
-                                    // alert('บันทึกเรียบร้อย');
-                                } else {
-                                    console.log("No such document!");
-                                }
-                            })
-                            .catch((error) => {
-                                console.log("Error getting document:", error);
-                            });
-                    })
-                    .catch((error) => {
-                        this.addTeacherWarning = true;
-                        console.error("Error adding teacher: ", error);
-                    });
+                                this.addTeacherSuccess = true;
+                                // alert('บันทึกเรียบร้อย');
+                            } else {
+                                console.log("No such document!");
+                            }
+                        })
+                        .catch((error) => {
+                            console.log("Error getting document:", error);
+                        });
+                })
+                .catch((error) => {
+                    this.addTeacherWarning = true;
+                    console.error("Error adding teacher: ", error);
+                });
 
         },
 
         readQuestion(id) {
-            db.collection("question").where("id", "==", id).onSnapshot((snapshot) => {
-              snapshot.forEach((doc) => {
-                if (doc.exists) {
-                  this.question = doc.data().question;
-                } else {
-                  console.log("No such document!");
-                }
-              });
+            db.collection("checkin").where("id", "==", id).onSnapshot((snapshot) => {
+                snapshot.forEach((doc) => {
+                    if (doc.exists) {
+                        this.question = doc.data().question;
+                    } else {
+                        console.log("No such document!");
+                    }
+                });
             }, (error) => {
-              console.log("Error fetching document:", error);
+                console.log("Error fetching document:", error);
             });
-          }
-          
-
+        }
     }
 });
 app.use(vuetify).mount("#app");
