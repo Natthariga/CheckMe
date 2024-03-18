@@ -29,7 +29,7 @@
 </head>
 
 <body id="login">
-  <header id="header" class="header header-hide">
+  <!-- <header id="header" class="header header-hide">
     <div class="container">
       <div id="logo" class="pull-left">
         <h1><a href="#" class="scrollto"><span>C</span>heckMe</a></h1>
@@ -41,7 +41,27 @@
         </ul>
       </nav>
     </div>
-  </header>
+  </header> -->
+  
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      <a class="navbar-brand" href="#" id="logos"><span>C</span>heckMe</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto" id="login">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" @click="google_login()">Login</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
   
   <section id="hero" class="wow fadeIn">
     <div class="hero-container">
