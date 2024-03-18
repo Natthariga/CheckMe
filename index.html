@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>CheckMe</title>
@@ -27,26 +28,27 @@
 
 </head>
 
-<body>
+<body id="login">
   <header id="header" class="header header-hide">
     <div class="container">
       <div id="logo" class="pull-left">
         <h1><a href="#" class="scrollto"><span>C</span>heckMe</a></h1>
       </div>
       <nav id="nav-menu-container">
-        <ul class="nav-menu" id="login">
+        <ul class="nav-menu">
           <li class="menu-active"><a href="#hero">Home</a></li>
           <li><a href="#" @click="google_login()">Login</a></li>
         </ul>
       </nav>
     </div>
   </header>
+  
   <section id="hero" class="wow fadeIn">
     <div class="hero-container">
       <h1>Welcome to CheckMe</h1>
       <h2>CheckMe Classroom : CheckIn Online</h2>
       <img src="img/hero-img.png" alt="Hero Imgs">
-      <a href="" class="btn-get-started scrollto" @click="google_login()">Login</a>
+      <a href="#" class="btn-get-started scrollto" @click="google_login()">Login</a>
     </div>
   </section>
 
@@ -61,14 +63,14 @@
     //   measurementId: "G-ZZXF64KNME"
     // }
     const firebaseConfig = {
-    apiKey: "AIzaSyD1b57Gu7RmvDnFos1jfqttcjodDAuL-RQ",
-    authDomain: "test-8ea4c.firebaseapp.com",
-    projectId: "test-8ea4c",
-    storageBucket: "test-8ea4c.appspot.com",
-    messagingSenderId: "545188803656",
-    appId: "1:545188803656:web:afdf45fb7f846bc290147d",
-    measurementId: "G-92S9RP518C"
-  };
+      apiKey: "AIzaSyD1b57Gu7RmvDnFos1jfqttcjodDAuL-RQ",
+      authDomain: "test-8ea4c.firebaseapp.com",
+      projectId: "test-8ea4c",
+      storageBucket: "test-8ea4c.appspot.com",
+      messagingSenderId: "545188803656",
+      appId: "1:545188803656:web:afdf45fb7f846bc290147d",
+      measurementId: "G-92S9RP518C"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -111,7 +113,6 @@
 
               this.checkUserRole(email);
 
-              // window.location.href = 'https://natthariga.github.io/CheckMe/logintest';
               window.location.href = './logintest.html';
             })
             .catch((error) => {
